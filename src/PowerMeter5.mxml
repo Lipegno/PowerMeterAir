@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" creationPolicy="all"
+					   creationComplete="windowedapplication1_creationCompleteHandler(event)" xmlns:ns1="*" xmlns:components="sinais.powermeter.view.components.*"
+					   addedToStage="init()" backgroundColor="#FFFFFF" width="1024" height="560"  currentState="startup_state" xmlns:faceAndmotion="faceAndmotion.*" xmlns:ns="sinais.powermeter.motion_detection.*" xmlns:eventsComponents="sinais.powermeter.view.components.eventsComponents.*">
+	<fx:Style source="PowerMeter5.css"/>
+	<s:states> 
+		<s:State name="hour" enterState="state4_enterStateHandler(event)" exitState="state4_exitStateHandler(event)"/>
+		<s:State name="day" enterState="state1_enterStateHandler(event)"/>
+		<s:State name="week" enterState="state2_enterStateHandler(event)"/>
+		<s:State name="month" enterState="state3_enterStateHandler(event)"/>
+		<s:State name="year"/>
+		<s:State name="startState"/> 
+		<s:State name="goals"/>
+		<s:State name="startup_state"/>
+	</s:states>
+	<s:transitions> 
+		<mx:Transition id="myTransition" fromState="startState" toState="day">
+			<mx:Parallel id="t1" targets="{[background]}">
+				<s:Fade  duration="2000"/>	
+			</mx:Parallel>
+		</mx:Transition>
+	</s:transitions> 
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			import mx.messaging.channels.StreamingAMFChannel;
+			import mx.states.State;
+			
+			import sinais.powermeter.ApplicationFacade;
+			import sinais.powermeter.motion_detection.MotionTrackerDemo;
+			import sinais.powermeter.view.components.GoalBox;
+			
+			public var inserted:Boolean 		= false;
+			
+			//Array with the events
+			[Bindable]
+			public var eventsArray:ArrayCollection = new ArrayCollection();
+			
+			// Data for the GUI changes
+			public var lastMotion:Date           = new Date();
+			public var lastMouse:Date  	         = new Date();
+
+			// App name
+			public static const NAME:String = "PowerMeter 2";
+			
+			// Action names
+			public static const START:String  			 = NAME+"/actions/START";
+			public static const EVENTSBYHOUR:String  	 = NAME+"/actions/GETEVENTSBYHOUR";
+			public static const WEEKTOTAL:String  		 = NAME+"/actions/GETWEEKTOTAL";
+			public static const INSERTEVENTMOTION:String = NAME+"/actions/INSERTEVENTMOTION";
+			
+			public static const DAY:String   = "day_view";
+
+			// Initialize the PureMVC apparatus
+			private var facade:ApplicationFacade = ApplicationFacade.getInstance();
+			
+			[Bindable] public var queryValue:String;
+			
+			//help strings
+			
+			private static const  hourHelp:String = "Aqui o utilizador poderá consultar o seu consumo de energia ao longo de a hora actual, cada espaço no gráfico representa um intrevalo de 5 minutos,o consumo é representado pela cor de cada elemento, verde bom ~ vermelho mau.\n"+
+				"Ao passar com o ponteiro do rato sobre um mês poderá ver informação mais detalhada sobre o consumo no respectivo intervalo de 1h.\n\n"+
+				"Os valores de potência e energia apresentados são aproximados e podem estar sujeitos a erros motivados pela natureza experimental do projecto e de forma alguma substituem os valores indicados pela empresa fornecedora de energia. Se detectar alguma inconsistência na informação agradecemos que informe a equipa de investigação." ;
+			
+			private static const   dayHelp:String = "Aqui o utilizador poderá consultar o seu consumo de energia ao longo do dia actual, cada espaço no gráfico corresponde a uma hora, o consumo é representado pela cor de cada elemento, verde bom ~ vermelho mau.\n"+
+				"Ao passar com o ponteiro do rato sobre um mês poderá ver informação mais detalhada sobre o consumo no respectivo intervalo de 1h.\n\n"+
+				"Os valores de potência e energia apresentados são aproximados e podem estar sujeitos a erros motivados pela natureza experimental do projecto e de forma alguma substituem os valores indicados pela empresa fornecedora de energia. Se detectar alguma inconsistência na informação agradecemos que informe a equipa de investigação." ;
+			
+			private static const   weekHelp:String = "Aqui o utilizador poderá consultar o seu consumo de energia ao longo da semana, cada espaço no gráfico corresponde a um dia do mês, o consumo é representado pela cor de cada elemento, verde bom ~ vermelho mau.\n" +
+										  "Note os dias da semana actual estão representados com a cor AZUL.\n"+
+				"Ao passar com o ponteiro do rato sobre um dia do mês poderá ver informação mais detalhada sobre o consumo no respectivo dia.\n\n"+
+				"Os valores de potência e energia apresentados são aproximados e podem estar sujeitos a errosotivados pela natureza experimental do projecto e de forma alguma substituem os valores indicados pela empresa fornecedora de energia. Se detectar alguma inconsistência na informação agradecemos que informe a equipa de investigação." ;
+
+			private static const   monthHelp:String = "Aqui o utilizador poderá consultar o seu consumo de energia ao longo da mês, cada espaço no gráfico corresponde a um dia do mês, o consumo é representado pela cor de cada elemento, verde bom ~ vermelho mau.\n" +
+				"Note os fins de semana estão representados com a cor AZUL.\n"+
+				"Ao passar com o ponteiro do rato sobre um dia do mês poderá ver informação mais detalhada sobre o consumo no respectivo dia.\n\n"+
+				"Os valores de potência e energia apresentados são aproximados e podem estar sujeitos a errosotivados pela natureza experimental do projecto e de forma alguma substituem os valores indicados pela empresa fornecedora de energia. Se detectar alguma inconsistência na informação agradecemos que informe a equipa de investigação." ;
+
+			private static const   yearHelp:String = "Aqui o utilizador poderá consultar o seu consumo de energia ao longo do ano, cada espaço no gráfico corresponde a um mês, o consumo é representado pela cor de cada elemento, verde bom ~ vermelho mau.\n" +
+				"Ao passar com o ponteiro do rato sobre um mês poderá ver informação mais detalhada sobre o consumo no respectivo mês.\n\n"+
+				"Os valores de potência e energia apresentados são aproximados e podem estar sujeitos a errosotivados pela natureza experimental do projecto e de forma alguma substituem os valores indicados pela empresa fornecedora de energia. Se detectar alguma inconsistência na informação agradecemos que informe a equipa de investigação." ;
+
+			private static const   goalsHelp:String ="Aqui o utilizador poderá definir objectivos para o ajudarem na redução do consumo, os principais objectivos definidos neste espaço podem ser vistos no ecrã inicial\n" +
+													 "O sistema permite a adição de objectivos para o dia, semana, e mês.\n\n"+
+				"Os valores de potência e energia apresentados são aproximados e podem estar sujeitos a erros motivados pela natureza experimental do projecto e de forma alguma substituem os valores indicados pela empresa fornecedora de energia. Se detectar alguma inconsistência na informação agradecemos que informe a equipa de investigação." ;
+
+			// Send events
+			
+			private function sendEvent( eventName:String ):void
+			{
+				this.dispatchEvent( new Event( eventName ) );
+			}
+			
+			private function init():void{
+				
+				this.maximize();
+				var startTime:Number = getTimer();
+				while (true) {
+					if (getTimer() - startTime >= 1000) break;
+				}
+				startTime = getTimer();
+				while (true) {
+					if (getTimer() - startTime >= 1000) break;
+				}
+			}
+			
+			public function setState(state:String):void{
+			
+				this.currentState = state; 
+			}
+
+			protected function state1_enterStateHandler(event:FlexEvent):void
+			{
+				NavBar.day_btn.selected = true;
+			}
+ 
+
+			protected function state2_enterStateHandler(event:FlexEvent):void
+			{
+				Week_Gauge.cleanLabels();
+				Week_Gauge.checkCurrentWeek();
+			}
+
+
+			protected function state3_enterStateHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				Week_Gauge.cleanLabels();
+				Week_Gauge.checkWeekends();
+			}
+
+			protected function windowedapplication1_creationCompleteHandler(event:FlexEvent):void
+			{
+				this.addEventListener(MouseEvent.MOUSE_MOVE,mouseEvent);
+				lastMotion          = new Date();
+				lastMouse  	        = new Date();
+				setInterval(changeState,2000);
+				facade.startup(this);
+			}
+			
+			public function checkUI():void{
+				lastMotion = new Date();
+				if(this.currentState=="startState"){
+					this.currentState="day";					
+					insertEvt();
+				} 
+			}
+			
+			public function mouseEvent(evt:MouseEvent):void{	
+				lastMouse = new Date();
+				if(this.currentState=="startState"){
+					NavBar.sendEvent("day_view"); 
+				}
+			}
+
+			private function changeState():void{
+				var currentDate:Date = new Date();
+
+				if((currentDate.time>(lastMouse.time+60000)) && (currentDate.time>(lastMotion.time+60000))){				
+					this.currentState="startState";	
+					this.GoalsStatus.currentState="";
+				}				
+			}
+			
+			private function insertEvt():void{			
+				this.dispatchEvent(new Event(INSERTEVENTMOTION));
+			} 
+		
+
+			protected function state4_enterStateHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				Hour_Gauge.requestNewCons();
+				Hour_Gauge.startupHourRequests();
+					
+			}
+
+
+			protected function state4_exitStateHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				Hour_Gauge.exitHourRequest();
+
+			}
+
+		]]>
+	</fx:Script> 
+	<components:CO2Emissions id="CO2Emissions"  includeIn="day,hour,month,startState,startup_state,week,year"   bottom="262.3" horizontalCenter="-384">
+	</components:CO2Emissions>
+	<components:EnergyCons id="EnergyCons" includeIn="day,hour,month,startState,startup_state,week,year" bottom="71" horizontalCenter="-385">
+	</components:EnergyCons>
+	<components:titleBox height="78" bottom="442" horizontalCenter="-386">
+	</components:titleBox>
+	<components:Recomendations id="Recoms"  height="198" includeIn="day,hour,month,startState,startup_state,week,year" bottom="271" horizontalCenter="383">
+	</components:Recomendations>
+	<s:Button x="279" y="511" label="Button" visible="false" click="{sendEvent(START)}"/>
+	<components:Week_gauge id="Week_Gauge" includeIn="month,week" width="478" height="438" horizontalCenter="0" verticalCenter="-48">
+	</components:Week_gauge>
+	<s:BorderContainer id="background" includeIn="startState" x="0" y="0" width="1024" height="560" borderVisible="false" backgroundColor="#DDDDDD" backgroundAlpha="0.9">
+	</s:BorderContainer>
+	<components:GoalsStatus id="GoalsStatus"   horizontalCenter="0" bottom="60">
+	</components:GoalsStatus>
+	<components:Day_Gauge id="Day_Gauge" height="467" includeIn="day,startState,startup_state" horizontalCenter="2" verticalCenter="-39">
+	</components:Day_Gauge>
+	<components:Year_Gauge id="Year_Gauge" includeIn="year" y="18" width="506" height="413" horizontalCenter="-3">
+	</components:Year_Gauge>
+	<components:Hour_Gauge id="Hour_Gauge" s1="{eventsArray}" includeIn="hour" width="576" height="477" horizontalCenter="-13" verticalCenter="-10">
+	</components:Hour_Gauge> 
+	<components:Notifications id="Notifications"  top="10" right="90.75">
+	</components:Notifications>
+	<mx:LinkButton id="help_btn" label="AJUDA" click="{help_box.visible=true}"  top="10" right="14"/>
+	<components:helpBox id="help_box" visible="false" hlp_text.hour="{hourHelp}" hlp_text.goals="{goalsHelp}" hlp_text.day="{dayHelp}" hlp_text.month="{monthHelp}" hlp_text.week="{weekHelp}" hlp_text.year="{yearHelp}"  horizontalCenter="0" verticalCenter="0" hlp_text.startup_state="{dayHelp}">
+	</components:helpBox>
+	<components:NavigationBar id="NavBar" bottom="3" horizontalCenter="0">		
+	</components:NavigationBar>
+	<s:BorderContainer includeIn="startup_state" x="0" y="0" width="100%" height="100%" backgroundAlpha="0.9">
+		<ns1:load_animation width="325.65" height="110.55" horizontalCenter="-0" verticalCenter="-0"/>
+	</s:BorderContainer>
+</s:WindowedApplication>

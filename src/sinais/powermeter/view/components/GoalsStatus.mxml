@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="1024" height="460" xmlns:components="sinais.powermeter.view.components.*" currentState="initState">
+	<s:states>
+		<s:State name="initState" enterState="buildGoalsSumary()"/>
+		<s:State name="detailedState" enterState="state1_enterStateHandler(event)"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import sinais.powermeter.ApplicationFacade;
+			import sinais.powermeter.view.GoalsMediator;
+			import sinais.powermeter.view.components.ratting_components.rateGoalsComponent;
+			import sinais.powermeter.view.components.ratting_components.rateGoalsComponentStatic;
+			
+			public static const NAME:String = "goalsStatus";
+			public static const GETMOREINFO:String  	= NAME+"/actions/GETMOREINFO";
+			public static const GETDAYSGOALS:String  	= NAME+"/actions/GETDAYSGOALS";
+			public static const GETWEEKSGOALS:String  	= NAME+"/actions/GETWEEKSGOALS";
+			public static const GETMONTHGOALS:String  	= NAME+"/actions/GETMONTHGOALS";
+			public static const ADDDAYSGOALS:String  	= NAME+"/actions/ADDDAYSGOALS";
+			public static const ADDWEEKSGOALS:String  	= NAME+"/actions/ADDWEEKSGOALS";
+			public static const ADDMONTHGOALS:String  	= NAME+"/actions/ADDMONTHGOALS";
+			public static const REMOVEGOALDAY:String	= NAME+"/actions/REMOVEGOALDAY";
+			public static const REMOVEGOALMONTH:String	= NAME+"/actions/REMOVEGOALMONTH";
+			public static const REMOVEGOALWEEK:String	= NAME+"/actions/REMOVEGOALWEEK";
+			
+			public static const GET_SG_GOALS:String		= NAME+"/actions/GET_SG_GOALS";
+			public static const ASK_SG_GOALS:String		= NAME+"/actions/ASK_SG_GOALS";
+
+			public static const VOTING_PLUS:String  = "/actions/VOTING_PLUS";
+			public static const VOTING_MINUS:String = "/actions/VOTING_MINUS";
+			
+			public static const GETDAYS_VOTES:String = "/actions/GETDAYS_VOTES";
+			
+			
+			public static const STARTUPCOMPLETE:String  = NAME+"/actions/StartupComplete";
+
+			
+			private var state:int=0;
+			private var facade:ApplicationFacade = ApplicationFacade.getInstance();
+
+			[Embed(source="../images/stepgreen_header.png")]
+			[Bindable]
+			public var logo:Class;
+			
+			[Bindable]
+			public var currentCons:String="0 W";
+			
+			[Bindable]
+			public var totalDay:String="0 W";
+			
+			[Bindable]
+			public var dayGoals:ArrayCollection   = new ArrayCollection(); // holds the goals for the day
+			
+			[Bindable]
+			public var weekGoals:ArrayCollection  = new ArrayCollection(); // holds the goals for the week
+			
+			[Bindable]
+			public var monthGoals:ArrayCollection = new ArrayCollection(); // holds the goals for the month
+			
+			
+			private function sendEvent( eventName:String ):void
+			{
+				this.dispatchEvent( new Event( eventName ) );
+			}
+			
+			protected function addGoalsMonthStateHandler(event:GoalEvent):void
+			{
+				this.dispatchEvent(new GoalEvent(ADDMONTHGOALS,event.data,false,false));								
+			}
+			
+			protected function addGoalsWeekStateHandler(event:GoalEvent):void
+			{
+				this.dispatchEvent(new GoalEvent(ADDWEEKSGOALS,event.data,false,false));								
+
+			}
+			
+			protected function addGoalsDayStateHandler(event:GoalEvent):void
+			{
+				this.dispatchEvent(new GoalEvent(ADDDAYSGOALS,event.data,false,false));								
+
+			}
+
+			protected function removeDayGoals(event:GoalEvent):void{
+			
+				this.dispatchEvent(new GoalEvent(REMOVEGOALDAY, event.data,false,false));
+			
+			}
+			
+			protected function removeWeeklyGoals(event:GoalEvent):void{
+				
+				this.dispatchEvent(new GoalEvent(REMOVEGOALWEEK, event.data,false,false));
+				
+			}
+			
+			protected function removeMonthlyGoals(event:GoalEvent):void{
+				
+				this.dispatchEvent(new GoalEvent(REMOVEGOALMONTH, event.data,false,false));
+				
+			}
+			
+			protected function state1_enterStateHandler(event:FlexEvent):void
+			{
+				sendEvent(ASK_SG_GOALS);				
+				if(state==0){
+					this.dispatchEvent(new GoalEvent("/actions/GETDAYS_VOTES",null,false,false));
+				state++;
+				}
+			}
+			
+			public function actGoalsBoxDay():void{
+				
+				var temp:String = "";
+				var i:int = 0
+				for(i=0; i<dayGoals.length;i++){
+					temp = temp + dayGoals.getItemAt(i).goal+'\n';
+				}
+				detailedGoalsBox.daygoalsText.text=temp;
+			}
+
+			public function actGoalsBoxWeek():void{
+				
+				var temp:String = "";
+				var i:int = 0
+				for(i=0; i<weekGoals.length;i++){
+					temp = temp + weekGoals.getItemAt(i).goal+'\n';
+				}
+				detailedGoalsBox.weekgoalsText.text=temp;
+			}
+			
+			public function actGoalsBoxMonth():void{
+				
+				var temp:String = "";
+				var i:int = 0
+				for(i=0; i<monthGoals.length;i++){
+					temp = temp + monthGoals.getItemAt(i).goal+'\n';
+				}
+				detailedGoalsBox.monthgoalsText.text=temp;
+			}
+			
+			public function actGoalsSumary():void{			
+				var temp:String ="";	
+				if(dayGoals.length>0)
+					temp = temp + dayGoals.getItemAt(dayGoals.length-1).goal;
+				
+				//goals_sumary.text= temp;			
+			}
+	
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub 
+				sendEvent(GET_SG_GOALS);
+				link_btn.label="Actualizar Acções";
+				
+			}
+			
+			
+			public function buildGoalsSumary():void{
+			
+				role_list.removeAllElements();
+				if(actions_containers!=null && actions_containers.numChildren>0){
+				for( var i:int=0; i<actions_containers.numChildren; i++){
+					var test:StepGreenGoalsBox = StepGreenGoalsBox(actions_containers.getChildAt(i));
+					var title:Label = new Label();
+					var signal:int = (-1*test.minusVotes)+(test.plusVotes);
+					title.text=test.role;
+					title.setStyle("fontSize",16);
+					title.setStyle("textAlign","center");
+					title.setStyle("verticalAlign","middle");
+					title.setStyle("paddingTop",5);
+					title.setStyle("paddingBottom",4);
+					title.percentWidth=100;
+						if(signal>0){
+							title.setStyle("backgroundColor",0x40bd36);
+						}else if(signal<0){
+							title.setStyle("backgroundColor",0xc73434);
+						}
+					role_list.addElement(title);
+				//	test.minusVotes = 0;  //cleans the vote count variable
+				//	test.plusVotes  = 0;  //
+				}
+				}
+				
+			}
+			/*
+				Handles the vonting in each stepgreenBox this listener is added on the mediator to each box
+			 */ 
+			public function handleVoting(event:GoalEvent):void{
+				switch(event.type){
+					case "plus":
+						this.dispatchEvent(new GoalEvent(VOTING_PLUS,event.data,false,false));	
+						break;
+					case "minus":
+						this.dispatchEvent(new GoalEvent(VOTING_MINUS,event.data,false,false));	
+						break;
+				}
+					
+			}
+
+
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.dispatchEvent(new GoalEvent(GETDAYS_VOTES,null,false,false));	
+			}
+
+
+			public function starDummy():void
+			{
+				var myIndetifier:Timer = new Timer(5000, 1);
+				myIndetifier.addEventListener(TimerEvent.TIMER, dummy);
+				
+				myIndetifier.start();				
+
+			}
+			
+			private function dummy(evt:TimerEvent):void{
+				
+				this.currentState = "detailedState";
+				var myIndetifier:Timer = new Timer(5000, 1);
+				myIndetifier.addEventListener(TimerEvent.TIMER, backdummy);
+				
+				myIndetifier.start();
+			}
+			
+			private function backdummy(evt:TimerEvent):void{
+				
+				this.currentState = "";
+				sendEvent(STARTUPCOMPLETE);
+			}
+
+		]]>
+	</fx:Script>
+	<s:BorderContainer creationPolicy="all" width="222" height="200" backgroundColor="#D9D9D9" borderStyle="solid" cornerRadius="15" borderColor="#FFFFFF" horizontalCenter="383" bottom="7" includeIn="initState">
+		<s:BorderContainer width="100%" height="2" horizontalCenter="0" top="31" borderColor="#FFFFFF">
+		</s:BorderContainer>
+		<s:Label x="10" y="10" text="Objectivos" fontSize="16"/>
+		<s:Label x="10" y="35" text="Resumo:" width="200" height="16" fontSize="14" id="recomText"/>
+		<s:Button visible="false" x="140" y="168" label="Button" click="buildGoalsSumary()"/>
+		<s:VGroup includeIn="initState" id="role_list" x="32" y="57" width="132" height="131" gap="10" verticalAlign="top" textAlign="right" horizontalAlign="right">
+		</s:VGroup>
+	</s:BorderContainer>
+<!--	<components:GoalBox creationComplete="sendEvent(GETDAYSGOALS)" goals="{dayGoals}" nome="Diariamente:" includeIn="detailedState" x="312" y="188" height="220" id="day_goals">
+	</components:GoalBox>
+	<components:GoalBox   nome="Semanalmente:" x="546" y="189" height="220" goals="{weekGoals}" includeIn="detailedState" id="week_goals">
+	</components:GoalBox>
+	<components:GoalBox  nome="Mensalmente:" x="781" y="187" height="220" goals="{monthGoals}" includeIn="detailedState" id="month_goals">
+	</components:GoalBox>-->
+	<components:CurrentGoalsActive visible="false" id="detailedGoalsBox" includeIn="detailedState" height="342" horizontalCenter="-361" verticalCenter="40">
+	</components:CurrentGoalsActive>
+	<s:BorderContainer width="171" height="83" backgroundColor="#D9D9D9" borderStyle="solid" cornerRadius="15" borderColor="#FFFFFF" horizontalCenter="-394" verticalCenter="-88" includeIn="detailedState">
+		<s:Label x="20" y="10" text="Consumo actual" fontSize="13"/>
+		<s:Label x="20" y="50" text="{currentCons}" width="132" height="27" fontSize="16" id="consumo_actual"/>
+		<s:BorderContainer height="2" borderColor="#FFFFFF" width="175" top="31">
+		</s:BorderContainer>
+	</s:BorderContainer>
+	<s:BorderContainer width="223" height="83" backgroundColor="#D9D9D9" borderStyle="solid" cornerRadius="15" borderColor="#FFFFFF" x="265" includeIn="detailedState" verticalCenter="-88">
+		<s:BorderContainer width="231" height="2" horizontalCenter="-16" top="32" borderColor="#FFFFFF">
+		</s:BorderContainer>
+		<s:Label x="20" y="10" fontSize="13" text="Total Hoje"/>
+		<s:Label x="20" y="50" text="{totalDay}" width="200" height="27" fontSize="14" id="total_hoje"/>
+	</s:BorderContainer>
+	<mx:Image source="{logo}" scaleContent="true" autoLoad="true" width="130" height="36" x="740" y="109" includeIn="detailedState"/>
+	<s:Label includeIn="detailedState" x="505" y="119" text="As acções apresentadas são retiradas do website stepgreen.org" width="227" height="31" id="sg_goals"/>
+	<s:Label x="505" y="49" text="A ligação ao site é usada para recolher informação sobre as acções. Não necessita de se ligar ao site se não tiver efectuado alguma altração no stepgreen.org" width="462" height="52" id="sg_goals0" includeIn="detailedState"/>
+	<s:Scroller includeIn="detailedState"  width="954" height="266" x="36" y="184">
+	<s:HGroup id="actions_containers"  x="313" y="194"   gap="5" paddingTop="10">
+	</s:HGroup>
+	</s:Scroller>
+	<s:Button includeIn="detailedState" x="897" y="109" label="Ligar" height="36" click="button1_clickHandler(event)" id="link_btn" chromeColor="#6DB772"/>
+	<s:Button visible="false" includeIn="detailedState" x="422" y="58" label="Button" click="button2_clickHandler(event)"/>
+</s:Group>

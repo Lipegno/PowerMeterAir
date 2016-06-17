@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+	<pathToBD value="C:/meterV2/data/daed.db"></pathToBD>
+	<pathToGoalsBD value="C:/PowerMeter2/goalsDB.sqlite"></pathToGoalsBD>
+	<maxPowerExpected5min value="50"></maxPowerExpected5min>	
+	<maxPowerExpectedHour value="2800"></maxPowerExpectedHour>
+	<maxPowerExpectedDay value="16800"></maxPowerExpectedDay>	
+	<maxPowerExpectedMonth value="800000"></maxPowerExpectedMonth>	
+	<requestreplySocletPort value="8112"></requestreplySocletPort>
+	<streamingSocketPort value="8111"></streamingSocketPort>
+	<maxEvent value="80"></maxEvent>
+	<eventsGap value="0.03"></eventsGap>
+	<maxEventRadius value="15"></maxEventRadius>
+	<soundEnabled value="false"></soundEnabled>
+	<historicalSound value="false"></historicalSound>
+	<soundAmp value="2"></soundAmp>
+<!--	<isBiHour value="false"></isBiHour>-->
+<!--	<energyPriceNormal value="0.1306"></energyPriceNormal>-->
+<!--	<energyPriceVazio value="0.0776"></energyPriceVazio>-->
+<!--	<energyPriceNVazio value="0.1371"></energyPriceNVazio>-->
+</settings>

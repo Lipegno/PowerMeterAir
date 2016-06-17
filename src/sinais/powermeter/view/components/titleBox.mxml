@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="252" height="102"
+		 creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<s:HTTPService id="weatherService"					   
+					   url="http://www.google.com/ig/api?weather=Funchal,Portugal"
+					   resultFormat="e4x"
+					   result="handleWeatherResult(event)" fault="weatherService_faultHandler(event)"
+					  />
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			
+			private var months:Array = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+			import mx.collections.XMLListCollection;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable] 
+			private var categories:XML;
+			private var pathIcon:String;
+			
+			private function handleWeatherResult(event:ResultEvent):void{
+				categories = new XML(event.result);
+				pathIcon = new String;
+				
+				weatherCurrent.text = categories..current_conditions..temp_c.@data+"º C";
+				var tomorow:int = ((categories..forecast_conditions[1]..high.@data)-32)*(5/9);
+				weatherTomorrow.text =tomorow+"º C";
+				
+				pathIcon = categories..current_conditions..icon.@data;
+				gifWeather.source = "http://www.google.pt"+pathIcon; 
+				//tempID.text = categories..current_conditions..condition.@data+"";
+				
+				
+				pathIcon = categories..forecast_conditions[1]..icon.@data;
+				gifWeatherTomorrow.source =  "http://www.google.pt"+pathIcon; 
+				//tempTomorrowID.text = categories..forecast_conditions[1]..condition.@data+"";
+			}
+			
+			protected function actMinutos():void{
+				var data:Date      = new Date(); 
+				var minutos:String = data.minutes>=10?data.minutes.toString():"0"+data.minutes;
+				var hora:String	   = data.hours>=10?data.hours.toString():"0"+data.hours;
+				hour.text = hora + ":" +minutos;
+				
+			}
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+			   dataC.text = new Date().date+"    "+months[new Date().monthUTC];
+			   actMinutos();
+			   weatherService.send();
+			   setInterval(actMinutos,60000);
+			   setInterval(sendHTTPRequest,60000);
+			}
+			
+			protected function sendHTTPRequest():void{
+			
+				weatherService.send();
+			
+			}
+
+
+			protected function weatherService_faultHandler(event:FaultEvent):void
+			{
+				// TODO Auto-generated method stub
+				trace(event);
+			}
+
+		]]>
+	</fx:Script>
+	<s:BorderContainer width="214" height="95" horizontalCenter="-2" borderVisible="false" y="1">
+		<s:Label y="9.7" text="SINAIS POWER METER" fontSize="16" color="#4D4D4D" x="6.35"/>
+		<s:Label x="6" text="Label" id="dataC" width="67" textAlign="left" y="36"/>
+		<s:Label x="5.8" text="Label" id="hour" width="55" textAlign="left" y="51"/>
+		
+		<s:TextArea x="63" y="68" id="weatherCurrent" width="55" height="31" fontSize="26" borderVisible="false" editable="false" text="15"/>
+		<s:TextArea x="157" y="68" id="weatherTomorrow" width="75" height="31" fontSize="18" borderVisible="false" editable="false" text="15"/>
+		<mx:Image y="28" id="gifWeather" width="40" height="40" x="66"/>
+		<mx:Image x="173" y="26" id="gifWeatherTomorrow" width="40" height="40"/>
+		<s:TextArea x="115" y="29" width="57" height="18" editable="false" borderVisible="false" text="amanhã:"/>
+		<s:BorderContainer width="1" height="36" y="29.25" x="114">
+		</s:BorderContainer>
+	</s:BorderContainer>
+</s:Group>

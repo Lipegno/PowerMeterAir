@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ratting_components="sinais.powermeter.view.components.ratting_components.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			
+			import sinais.powermeter.handlersObjects.WeekHandler;
+			
+			
+			protected function datechooser1_changeHandler(event:CalendarLayoutChangeEvent):void
+			{
+				// TODO Auto-generated method stub
+				var week:WeekHandler = new WeekHandler();
+				trace(event.newDate);
+				trace(week.calculateISO8601WeekNumber(event.newDate));
+			}
+			
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:DateChooser x="34" y="55" width="243" height="179" change="datechooser1_changeHandler(event)"/>
+	<ratting_components:rateGoalsComponentStatic rating="5" x="445" y="97">
+	</ratting_components:rateGoalsComponentStatic>
+</s:WindowedApplication>

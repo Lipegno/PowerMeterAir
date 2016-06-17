@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="576" height="439" xmlns:ns1="*" creationComplete="group1_creationCompleteHandler(event)" xmlns:components="components.*" xmlns:eventsComponents="sinais.powermeter.view.components.eventsComponents.*">
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace local1 "sinais.powermeter.view.components.eventsComponents.*";
+			
+		@font-face {
+			font-family:"Myriad Regular";
+			src:url("../sinais/powermeter/view/fonts/MyriadPro-Regular.otf");
+			embedAsCFF: false;
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import mx.charts.HitData;
+			import mx.charts.series.items.BubbleSeriesItem;
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import sinais.powermeter.ApplicationFacade;
+			import sinais.powermeter.handlersObjects.ConfigSingleton;
+			import sinais.powermeter.view.EventsMediator;
+			import sinais.powermeter.view.HourGaugeMediator;
+			import sinais.powermeter.view.components.eventsComponents.ExtendedBubbleSeries;
+			import sinais.powermeter.view.components.eventsComponents.MyDataTip;
+			import sinais.powermeter.view.components.eventsComponents.renderers.CycleColorRenderer;
+			
+			public static const NAME:String				= "Hour_Gauge";
+			public static const GETHOURCONS:String  	= NAME+"/actions/GETHOURCONS";
+			public static const STARTUPHOURCONS:String	= NAME+"/actions/STARTUPHOURCONS";
+			public static const CURRENTPOWER:String  	= NAME+"/actions/GETCURRENTPOWER";
+			public static const LASTEVENT:String  		= NAME+"/actions/GETLASTEVENT";
+			public static const CLASSIFIED_EVT:String   = "CLASSIFIED_EVT";
+
+			private var months:Array = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+			
+			private var facade:ApplicationFacade = ApplicationFacade.getInstance();
+			public var isKNN:int = 0;
+			public var _lastRequest:String ="";
+			
+			public var myTimer:Timer = new Timer(150000); // timer used to refresh the gauge once the user his in this view
+			
+			//////////////
+			//////////////
+			[Bindable]
+			public var s1:ArrayCollection = new ArrayCollection();
+/////  test functoins			
+			private function buildtestArray():void{
+				
+				var i:int=0;
+				var lastangle:int = 0
+				for(i=0;i<=59;i++){
+					var item:Object = new Object();
+					item.r=10;
+					var	angleRads:Number = calculate_angle(i);
+					if(angleRads!=lastangle){
+						item.x = ((0*Math.cos(angleRads))-(-10*Math.sin(angleRads)));
+						item.y = ((0*Math.sin(angleRads))+(-10*Math.cos(angleRads)));
+						lastangle=angleRads;
+					}
+					else{
+						item.x = ((0*Math.cos(angleRads))-(-11*Math.sin(angleRads)));
+						item.y = ((0*Math.sin(angleRads))+(-11*Math.cos(angleRads)));
+					}
+					item.i =Math.round(Math.random()*10);
+					item.deltaPMean = Math.round(Math.random()*100);
+					item.event_id = Math.round(Math.random()*20);
+					item.appliance_id =Math.round(Math.random()*5);
+					item.appliance_guess = "teste";
+					item.r=10;
+					item.is_class = false;
+					s1.addItem(item);
+				}
+			
+			}
+		
+			private function calculate_angle(minutes:int):Number{
+				
+				minutes = minutes<=3?minutes+2:minutes;
+				var angle:Number = (5.5273*minutes) + 12;
+				return ( (angle*Math.PI)/180)*-1;
+			}
+////////////			
+			public function dtFunc(e:HitData):String {
+				
+				var returnString:String	  = "";
+				var test:BubbleSeriesItem = BubbleSeriesItem(e.chartItem);
+				returnString = "Salto:"+"\n"
+				returnString+=Math.round(Number(e.item.deltaPMean))+" W";
+				return returnString;
+				
+			}
+			
+			
+			private function checkAppliance(id:String):String{
+				var applicances_list:XML = ConfigSingleton.getInstance().getAppliances();
+				var returnString:String="";
+				for each(var test:XML in applicances_list.appliance){
+					if(test==id){
+					returnString=test.@id;
+					}
+				}
+				
+			return returnString;
+			}
+			
+			
+			private function checkName(id:String):Boolean{
+				var applicances_list:XML = ConfigSingleton.getInstance().getAppliances();
+				var returnVal:Boolean=false;
+				for each(var test:XML in applicances_list.appliance){
+					if(test==id){
+						returnVal=true;
+					}
+				}
+				
+				return returnVal;
+			}
+			
+			
+			protected function extendedbubbleseries1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var is_classified:Boolean = bubble_series.selectedItem.item.is_class;
+			
+				if(is_classified){
+					classified_window.visible=true;
+					classified_window.deltaMean = (bubble_series.selectedItem.item.deltaPMean);
+					classified_window.equipment = 	bubble_series.selectedItem.item.appliance_guess;//checkAppliance(bubble_series.selectedItem.item.appliance_id);
+					classified_window.x=event.localX;
+					classified_window.y=event.localY-120;
+				}
+				else{
+					unclassified_window.visible=true;
+					unclassified_window.deltaMean= (bubble_series.selectedItem.item.deltaPMean);
+					unclassified_window.equipment.text = bubble_series.selectedItem.item.appliance_guess;
+					unclassified_window.x=event.localX;
+					unclassified_window.y=event.localY-120;
+				}
+			}
+			
+			private function buildRequest(operation:String, event_id:String ,appliance:String, appliance_id:String,cluster:String):void{
+				var request:String="";
+				if(operation == "insert-and-update") // then load the event and store in the other table
+					request=(operation+"|" + event_id + "|" + appliance + "|" + cluster);
+				else if(operation == "update")
+					request=(operation+ "|" + event_id + '|' + appliance_id + '|' + cluster + '|' + this.isKNN);
+				else if(operation == "reset")
+					request=(operation + "|" + event_id);
+				
+				_lastRequest =  request;
+			}
+			
+			private function close_window(evt:Event):void{
+				classified_window.visible=false;
+				
+				buildRequest("update",
+					bubble_series.selectedItem.item.event_id,
+					classified_window.equipment,
+					bubble_series.selectedItem.item.appliance_id,bubble_series.selectedItem.item.i+"");
+				
+				this.dispatchEvent( new ClassificationEvent(CLASSIFIED_EVT, _lastRequest,false, false));
+				
+			}
+			
+			private function classifyEvent(evt:Event):void{
+				unclassified_window.visible=false;
+				
+				if(checkName(unclassified_window.getApplianceName())){
+					bubble_series.selectedItem.item.is_class=true;
+					bubble_series.selectedItem.item.appliance_guess = unclassified_window.getApplianceName();
+				buildRequest("update",
+					bubble_series.selectedItem.item.event_id,
+					unclassified_window.getApplianceName(),
+					checkAppliance(unclassified_window.getApplianceName()),bubble_series.selectedItem.item.i+"");
+				}
+				else{
+					bubble_series.selectedItem.item.is_class=true;
+					buildRequest("insert-and-update",
+						bubble_series.selectedItem.item.event_id,  
+						unclassified_window.getApplianceName(),
+						bubble_series.selectedItem.item.appliance_id,bubble_series.selectedItem.item.i+"");
+				
+				}
+				
+				this.dispatchEvent( new ClassificationEvent(CLASSIFIED_EVT, _lastRequest,false, false));
+
+			}
+
+			//////////////
+			//////////////
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				trace("entrei no hour");
+				
+				facade.registerMediator( new HourGaugeMediator( this) );
+				facade.registerMediator(new EventsMediator(this.bubblechart1));
+				
+				bubblechart1.setStyle("dataTipRenderer",MyDataTip); 
+				classified_window.addEventListener("close_window", close_window);
+				unclassified_window.addEventListener("classify_event", classifyEvent);
+				this.sendEvent(STARTUPHOURCONS);
+				HGauge.dia_mes.text = new Date().date+" de "+months[new Date().monthUTC] + " de " + new Date().fullYear;
+				actMinutos();
+				//buildtestArray();
+			 //	setInterval(requestNewCons,89015);
+			}
+
+			protected function actMinutos():void{
+				var data:Date      = new Date(); 
+				var minutos:String = data.minutes>=10?data.minutes.toString():"0"+data.minutes;
+				var hora:String	   = data.hours>=10?data.hours.toString():"0"+data.hours;
+				HGauge.hora.text = hora + ":" +minutos;
+			}
+			
+			private function sendEvent( eventName:String ):void
+			{
+				this.dispatchEvent( new Event( eventName ) );
+			}
+			
+			public function startupHourRequests():void{  // called by the main view once the user navigates to the hour view
+														// its used to set up the timer so it calls the fucntion to request new hourly consumption
+			
+				myTimer.addEventListener(TimerEvent.TIMER, requestNewConsT);
+				myTimer.start();
+			
+			}
+			
+			private function requestNewConsT(event:TimerEvent):void{
+				sendEvent(GETHOURCONS);
+			}
+			
+			public function requestNewCons():void{
+			sendEvent(GETHOURCONS);
+			}
+			
+			 public function exitHourRequest():void{ // called by the main view once the user exists this view
+				 									// it removes the listener of the timer so that no new requests are sent saving this way processing power :)
+				myTimer.stop();
+				myTimer.removeEventListener(TimerEvent.TIMER, requestNewConsT);
+			 }
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<fx:Array id="backs">			
+		</fx:Array>
+	</fx:Declarations>
+	
+	<ns1:HourGauge  id="HGauge" x="28.25" y="14.5" width="545.8" height="405.65"/>
+	<s:Button x="0" y="0" label="Button" click="requestNewCons()" visible="false"/>
+	<mx:BubbleChart  showDataTips="true" dataTipFunction="dtFunc" selectionMode="single"  
+					x="-2.75" y="-46.5" id="bubblechart1"  backgroundElements="{backs}" 
+					width="596" height="576">
+		<mx:horizontalAxis>
+			<mx:LinearAxis maximum="14" minimum="-14" id="cat1">
+			</mx:LinearAxis>
+		</mx:horizontalAxis>
+		<mx:verticalAxis>
+			<mx:LinearAxis maximum="14" minimum="-14" id="cat2"/>
+		</mx:verticalAxis>
+		<mx:horizontalAxisRenderers>
+			<mx:AxisRenderer visible="false" axis="{cat1}"/>
+		</mx:horizontalAxisRenderers>
+		<mx:verticalAxisRenderers>                
+			<mx:AxisRenderer visible="false" axis="{cat2}"/>
+		</mx:verticalAxisRenderers>
+		<mx:series>
+			<eventsComponents:ExtendedBubbleSeries
+				click="extendedbubbleseries1_clickHandler(event)"
+				id="bubble_series"
+				itemRenderer="sinais.powermeter.view.components.eventsComponents.renderers.CycleColorRenderer"
+				dataProvider="{s1}" 
+				displayName="event" 
+				xField="x" yField="y" 
+				radiusField="r"
+				/>
+		</mx:series>   
+	</mx:BubbleChart>
+	<eventsComponents:unclassified_window id="unclassified_window" visible="false">
+	</eventsComponents:unclassified_window>
+	<eventsComponents:classified_window id="classified_window"  visible="false">
+	</eventsComponents:classified_window>
+</s:Group>

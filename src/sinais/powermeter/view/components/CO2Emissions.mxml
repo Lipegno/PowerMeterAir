@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="222" height="157" creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			public static const NAME:String = "C02Emissions";
+			public static const GETMONTHCOMP:String  	= NAME+"/actions/MONTHCOMP";
+			import sinais.powermeter.ApplicationFacade;
+			private var months:Array = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+			
+			private function sendEvent( eventName:String ):void
+			{
+				this.dispatchEvent( new Event( eventName ) );
+			}
+			
+			
+			protected function start():void{
+				sendEvent(GETMONTHCOMP);
+			}	
+
+
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				mespassado.text = months[(new Date().monthUTC)-1];
+				mesactual.text  = months[new Date().monthUTC];
+				sobe.visible	= false;
+				desce.visible	= false;
+				igual.visible	= false;
+				setInterval(start,3800000);
+
+			}
+
+
+
+		]]>
+	</fx:Script>
+	<s:BorderContainer width="222" height="157" backgroundColor="#D9D9D9" borderStyle="solid" cornerRadius="15" borderColor="#FFFFFF" horizontalCenter="0" verticalCenter="0">
+		<s:BorderContainer width="100%" height="2" horizontalCenter="0" top="31" borderColor="#FFFFFF">
+		</s:BorderContainer>
+		<s:Label x="10" y="10" text="Emissões de CO2" fontSize="16"/>
+		<s:Label id="id_label" x="10.5" y="43.5" text="Total hoje:" fontSize="14"/>
+		<s:Label x="10.5" y="90" text="Este Mes" width="69" textAlign="right" id="mesactual" fontSize="14"/>
+		<s:Label x="102.5" y="90" text="Mes Passado" width="87" textAlign="left" id="mespassado" fontSize="14"/>
+		<s:Label x="85" y="90" text="vs"/>
+		<s:Label x="94" y="64.5" text="2 gCO2" fontSize="16" id="CO2"/>
+		<s:Label x="45" y="117.5" text="8%" fontSize="16" id="percent"/>
+		<s:Button x="172" y="35" label="Button" click="sendEvent(GETMONTHCOMP)" visible="false" width="18"/>
+		<mx:Image source="sinais/powermeter/view/images/setasobe.png" width="35" height="35" right="60" bottom="10" id="sobe"/>
+		<mx:Image source="sinais/powermeter/view/images/setadesce.png" width="35" height="35" right="60" bottom="10" id="desce"/>
+		<mx:Image source="sinais/powermeter/view/images/igual.png" width="35" height="35" right="60" bottom="2" id="igual"/>
+	</s:BorderContainer>
+</s:Group>

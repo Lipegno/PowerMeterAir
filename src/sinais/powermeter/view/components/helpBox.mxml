@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="666" height="384">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			public var hlp_text:String = "";
+			
+			
+			protected function image1_clickHandler(event:MouseEvent):void{
+			
+				this.visible=false;
+			}
+		]]>
+	</fx:Script>
+	<s:BorderContainer width="100%" height="294" verticalCenter="-45" horizontalCenter="0" cornerRadius="15" backgroundColor="#F3F3F3" borderVisible="true" borderWeight="2" chromeColor="#EEEEEE">
+		<s:BorderContainer width="100%" height="2" horizontalCenter="0" top="31" borderColor="#FFFFFF">
+		</s:BorderContainer>
+		<s:BorderContainer id="close_cont" width="25" height="25" right="-10" top="-10" borderWeight="1" dropShadowVisible="true" cornerRadius="6">
+			<mx:Image click="image1_clickHandler(event)" horizontalCenter="0" verticalCenter="0" source="sinais/powermeter/view/images/close_icon.png" width="100%" height="100%"/>
+		</s:BorderContainer>
+		<s:Label x="10" y="10" text="Ajuda" fontSize="16"/>
+		<s:Label text="{hlp_text}" width="90%" height="232" horizontalCenter="-2" verticalCenter="7" fontSize="14" verticalAlign="middle"/>
+	</s:BorderContainer>
+</s:Group>

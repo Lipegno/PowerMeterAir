@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="222" height="220">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<s:XMLListCollection id="appliances"  />
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			
+			
+			[Bindable]
+			public var nome:String="";
+			
+			[Bindable]
+			public var goals:ArrayCollection = new ArrayCollection();
+			
+			public static const NAME:String 		= "GOAL_BOX"
+			public static const ADD_GOAL:String  	= "AddGoal";
+			public static const REMOVE_GOAL:String 	= "RemoveGoal";
+			
+			private static const comboBoxOpt:ArrayCollection = new ArrayCollection([{label:"Consumir menos que"},{label:"Consumir tanto como"}]);
+			
+			private function sendEventAdd( eventName:String ):void
+			{
+				if(money_goal.text!=""){
+					var eventFilipe:GoalEvent = new GoalEvent(eventName,activities_selection.selectedItem.label+" "+money_goal.text,false,false);
+					dispatchEvent(eventFilipe);
+					money_goal.text="";
+				}
+				else{
+					Alert.show('Não introduziu nenhum valor para o objectivo');
+				}
+			}
+
+			private function sendEventRemove(eventName:String):void{
+		
+				if(goal_list.selectedIndex!=-1){
+					var eventFilipe:GoalEvent = new GoalEvent(eventName,goals.getItemAt(goal_list.selectedIndex).goal.toString(),false,false);
+					dispatchEvent(eventFilipe);
+				}
+				else{
+					Alert.show('Não introduziu nenhum valor para o objectivo');
+				}
+			}
+			
+			private function test():void{
+			
+				trace("dasdas");
+			}
+		]]>
+	</fx:Script>
+	<s:BorderContainer x="0" y="2" width="222" height="218" backgroundColor="#D9D9D9" cornerRadius="15" borderVisible="false">
+		<s:Label x="11.5" y="9.5" id="time_goal" text="{nome}" width="184" fontSize="14"/>
+		<s:List x="9.5" y="30.5" width="202" height="127" dataProvider="{goals}" labelField="goal" borderVisible="false" borderAlpha="0.68" id="goal_list"></s:List>
+		<s:ComboBox y="166" id="activities_selection" selectedIndex="1" width="124" cornerRadius="5" x="12" click="test()">
+			<mx:ArrayList>
+				<fx:Object label="-"/>
+				<fx:Object label="Consumir menos que"/>
+				<fx:Object label="Consumir tanto como"/>
+				<!--<fx:Object label="AR"/>-->
+			</mx:ArrayList>
+		</s:ComboBox>
+		<s:Button x="10.4" y="192.6" label="Remove" cornerRadius="5" width="79" click="sendEventRemove(REMOVE_GOAL)"/>
+		<s:Button x="163.8" y="192.3" label="Add" width="50" cornerRadius="5" click="sendEventAdd(ADD_GOAL)"/>
+		<s:TextInput x="141" y="164" id="money_goal" width="71"/>
+	</s:BorderContainer>
+</s:Group>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="212" height="172">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace local1 "sinais.powermeter.view.components.eventsComponents.unclassified_window.classbtn";
+		
+		local1{
+			font-family:"Myriad Regular";
+		}
+		
+		@font-face {
+			font-family:"Myriad Regular";
+			src:url("../sinais/powermeter/view/fonts/MyriadPro-Regular.otf");
+			embedAsCFF: false;
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			public var deltaMean:String="";
+			
+			[Bindable]
+			public var appliance_sugestion:String="";
+
+			protected function linkbutton1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var classify_event:Event =  new Event("classify_event",false,false);
+				this.dispatchEvent(classify_event);
+			}
+			
+			public function getApplianceName():String{
+				return equipment.text;
+			}
+
+
+			protected function linkbutton2_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.visible=false;
+			}
+
+		]]>
+	</fx:Script>
+	<s:BorderContainer cornerRadius="10" width="200" height="158" dropShadowVisible="true" borderWeight="4" verticalCenter="0" horizontalCenter="0">
+		<s:Label x="10" y="10" text="Equipamento:" fontSize="18"/>
+		<s:Label x="24" y="117" text="{deltaMean}" fontSize="16" width="145" height="27" verticalAlign="middle"/>
+		<s:Label x="10" y="95" text="Salto:" fontSize="18"/>
+		<s:TextInput x="10" y="33" id="equipment"  height="26" contentBackgroundColor="#FFFFFF" width="172"/>
+		<mx:LinkButton id="classbtn" label="Classificar" click="linkbutton1_clickHandler(event)" right="9" verticalCenter="24" fontSize="14" color="#4F6FB9"/>
+		<s:Label x="10" visible="false" y="62" text="{appliance_sugestion}" width="172" height="17" id="sugestion"/>
+		<mx:LinkButton x="158" y="2" label="x" color="#DA0909" fontSize="19" click="linkbutton2_clickHandler(event)" fontWeight="bold" fontFamily="Myriad Regular" rollOverColor="#D79595" selectionColor="#EEA8A8"/>
+	</s:BorderContainer>
+</s:Group>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="onCreationComplete()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			import flash.net.ServerSocket;
+			import flash.net.Socket;
+			import events.NewEventEvt;
+			private var sSocket:ServerSocket;
+			private var cSocket:Socket;
+
+			[Event(name="newEventEvt", type="events.NewEventEvt")]
+
+			private function onCreationComplete() : void {
+				sSocket = new ServerSocket();
+				sSocket.bind(7100, "127.0.0.1");
+				sSocket.addEventListener(ServerSocketConnectEvent.CONNECT, onClientConnet);
+				sSocket.listen();
+				trace("Listening...");
+			}
+			
+			private function onClientConnet(event:ServerSocketConnectEvent) : void {
+				cSocket = event.socket;
+				cSocket.addEventListener( ProgressEvent.SOCKET_DATA, onClientSocketData );
+				
+			
+			}
+			
+			
+			private function onClientSocketData( event:ProgressEvent ):void
+			{
+				//trace(cSocket.readDouble());
+					
+				var data:String=""			
+				
+				while(cSocket.bytesAvailable > 0) {
+					data+=(cSocket.readUTF())+"&";
+				
+				}
+				
+			//	var newEventEvt:NewEventEvt = new NewEventEvt(data,"newEvent",false,false);
+			//	super.dispatchEvent(newEventEvt);
+				
+			}
+			
+		]]>
+	</fx:Script>
+</mx:Canvas>

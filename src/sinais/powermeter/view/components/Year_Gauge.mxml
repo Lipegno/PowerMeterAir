@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="528" height="422" xmlns:ns1="*" xmlns:components="sinais.powermeter.view.components.*" creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			import mx.events.FlexEvent;
+			import sinais.powermeter.view.YearGaugeMediator;
+			import sinais.powermeter.ApplicationFacade;
+			
+
+			private var facade:ApplicationFacade = ApplicationFacade.getInstance();
+
+			
+			public static const NAME:String		= "Recomendations";
+			public static const YEARCONS:String = NAME+"/actions/YEARCONS";
+			public static const STARTUP_YEARCONS:String = NAME+"/actions/STARTUP_YEARCONS";
+
+			
+			private var months:Array = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+			
+			private function sendEvent( eventName:String ):void
+			{
+				this.dispatchEvent( new Event( eventName ) );
+			}
+			
+
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				facade.registerMediator( new YearGaugeMediator( this) );
+
+				actMinutos();       // refresh the date for the first time
+
+				yearG.dia_mes.text = new Date().date+" de "+months[new Date().monthUTC] + " de " + new Date().fullYear;
+				setInterval(actMinutos,60000); 
+				setInterval(actGraph, 5000000);	// set the interval for refreshing the gauge
+									  
+				yearG.consumo.text="--";
+				sendEvent(STARTUP_YEARCONS);
+				
+				// TODO Auto-generated method stub
+			}
+			
+			protected function actGraph():void{
+				sendEvent(YEARCONS);
+			}
+			
+			
+			protected function actMinutos():void{
+				
+				var data:Date      = new Date(); 
+				var minutos:String = data.minutes>=10?data.minutes.toString():"0"+data.minutes;
+				var hora:String	   = data.hours>=10?data.hours.toString():"0"+data.hours;
+				yearG.hora.text	   = hora + ":" +minutos;
+				
+			}
+		]]>
+	</fx:Script>
+	<ns1:YearGauge id="yearG" width="540.9" height="425.5" top="0" horizontalCenter="56"/>
+	<!--<s:Button x="448" y="10" label="Button" click="sendEvent(YEARCONS)"/>-->
+</s:Group>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="210" height="178">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var deltaMean:String="";
+			[Bindable]
+			public var equipment:String="";
+			
+			
+
+			protected function linkbutton1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				var exitEvent:Event =  new Event("close_window",false,false);
+				this.dispatchEvent(exitEvent);
+			}
+			
+			protected function linkbutton2_clickHandler(evt:MouseEvent):void{
+				this.visible=false;			
+			}
+
+		]]>
+	</fx:Script>
+	<s:BorderContainer cornerRadius="10" width="200" height="158" dropShadowVisible="true" borderWeight="4" horizontalCenter="0" verticalCenter="0">
+		<s:Label x="10" y="10" text="Equipamento:" fontSize="18"/>
+		<s:Label x="22" y="36" text="{equipment}" fontSize="16" width="145" height="27" verticalAlign="middle"/>
+		<s:Label x="24" y="116" text="{deltaMean}" fontSize="16" width="145" height="27" verticalAlign="middle"/>
+		<s:Label x="10" y="94" text="Salto:" fontSize="18"/>
+		<!--<mx:LinkButton label="confirmar" click="linkbutton1_clickHandler(event)" right="11" verticalCenter="3" width="91" height="31" fontSize="14" color="#4F6FB9"/>-->
+		<mx:LinkButton x="162" y="0" label="x" color="#DA0909" fontSize="19" click="linkbutton2_clickHandler(event)" fontWeight="bold" fontFamily="Myriad Regular" rollOverColor="#D79595" selectionColor="#EEA8A8"/>
+	</s:BorderContainer>
+</s:Group>

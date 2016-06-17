@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="106" height="30" xmlns:ns="sinais.powermeter.view.components.ratting_components.components.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.IFlexDisplayObject;
+			import mx.managers.PopUpManager;
+			
+			import sinais.powermeter.view.components.ratting_components.components.popVote;
+			
+			public var numberClicks:int = 0;
+			public var average:int = 0;
+			public var numberStar:int = 0;
+			private var confirmWindow:IFlexDisplayObject;
+			private var closingWindow:Timer;
+			
+			private function colorize(value:Number, id:Array, isClicked:Boolean, rate:int) :void{
+				
+				for(var i:int = 0; i<id.length; i++){
+					colorizeStar(id[i], value);
+				}
+				
+				if(isClicked){
+					numberClicks++;
+					average += rate;
+					numberStar = Math.round(average/numberClicks);
+					vote_info.visible=true;
+					closingWindow = new Timer(2000,1);
+					closingWindow.addEventListener(TimerEvent.TIMER, removeAfterTime);
+					closingWindow.start();
+				}
+			}
+			
+			protected function removeAfterTime(evt:TimerEvent):void{
+				vote_info.visible=false;
+				closingWindow.removeEventListener(TimerEvent.TIMER,removeAfterTime);
+
+			}
+			
+			private function colorizeStar(idArray:Object, value:Number):void{
+				var colorTrans:ColorTransform = new ColorTransform();
+				
+				colorTrans.color = value;
+				idArray.transform.colorTransform = colorTrans;
+			}
+			
+			private function rateStars():void{
+				switch(numberStar){
+					case 0:
+						colorizeStar(starID1, 0xc6c6c5);
+						colorizeStar(starID2, 0xc6c6c5);
+						colorizeStar(starID3, 0xc6c6c5);
+						colorizeStar(starID4, 0xc6c6c5);
+						colorizeStar(starID5, 0xc6c6c5);
+						break;
+					case 1:
+						colorizeStar(starID1, 0xf4cc1e);
+						colorizeStar(starID2, 0xc6c6c5);
+						colorizeStar(starID3, 0xc6c6c5);
+						colorizeStar(starID4, 0xc6c6c5);
+						colorizeStar(starID5, 0xc6c6c5);
+						break;
+					case 2:
+						colorizeStar(starID1, 0xf4cc1e);
+						colorizeStar(starID2, 0xf4cc1e);
+						colorizeStar(starID3, 0xc6c6c5);
+						colorizeStar(starID4, 0xc6c6c5);
+						colorizeStar(starID5, 0xc6c6c5);
+						break;
+					case 3:
+						colorizeStar(starID1, 0xf4cc1e);
+						colorizeStar(starID2, 0xf4cc1e);
+						colorizeStar(starID3, 0xf4cc1e);
+						colorizeStar(starID4, 0xc6c6c5);
+						colorizeStar(starID5, 0xc6c6c5);
+						break;
+					case 4:
+						colorizeStar(starID1, 0xf4cc1e);
+						colorizeStar(starID2, 0xf4cc1e);
+						colorizeStar(starID3, 0xf4cc1e);
+						colorizeStar(starID4, 0xf4cc1e);
+						colorizeStar(starID5, 0xc6c6c5);
+						break;
+					case 5:
+						colorizeStar(starID1, 0xf4cc1e);
+						colorizeStar(starID2, 0xf4cc1e);
+						colorizeStar(starID3, 0xf4cc1e);
+						colorizeStar(starID4, 0xf4cc1e);
+						colorizeStar(starID5, 0xf4cc1e);
+						break;
+				}
+			}
+		]]>
+	</fx:Script>
+	<ns:starComponent id="starID1" x="0" mouseOver="colorize(0xc24c4c, [this.starID1], false, 0)" click="colorize(0xf4cc1e, [this.starID1], true, 1)" mouseOut="rateStars()"/>
+	<ns:starComponent id="starID2" x="20" mouseOver="colorize(0xc24c4c, [this.starID1, this.starID2], false, 0)" click="colorize(0xf4cc1e, [this.starID1, this.starID2], true, 2)" mouseOut="rateStars()"/>
+	<ns:starComponent id="starID3" x="40" mouseOver="colorize(0xc24c4c, [this.starID1, this.starID2, this.starID3], false, 0)" click="colorize(0xf4cc1e, [this.starID1, this.starID2, this.starID3], true, 3)" mouseOut="rateStars()"/>
+	<ns:starComponent id="starID4" x="60" mouseOver="colorize(0xc24c4c, [this.starID1, this.starID2, this.starID3, this.starID4], false, 0)" click="colorize(0xf4cc1e, [this.starID1, this.starID2, this.starID3, this.starID4], true, 4)" mouseOut="rateStars()"/>
+	<ns:starComponent id="starID5" x="80" mouseOver="colorize(0xc24c4c, [this.starID1, this.starID2, this.starID3, this.starID4, this.starID5], false, 0)" click="colorize(0xf4cc1e, [this.starID1, this.starID2, this.starID3, this.starID4, this.starID5], true, 5)" mouseOut="rateStars()"/>
+	<s:Label visible="false" x="-0.4" id="vote_info" alpha="1" y="0" text="voto inserido com sucesso" width="106" height="30" verticalAlign="middle" backgroundColor="#989898" textAlign="center" backgroundAlpha="0.41" color="#000000"/>
+</s:Group>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="490" height="450" xmlns:local="*" creationComplete="gauge_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flash.net.dns.AAAARecord;
+			
+			import mx.events.FlexEvent;
+			
+			import sinais.powermeter.ApplicationFacade;
+			
+			
+			[Bindable]
+			public var testee:String = "";
+			
+			
+			public static const NAME:String = "Day_Gauge";
+			public static const DAYCONSUMP:String  	= NAME+"/actions/DAYCONSUMP";
+			public static const CURRENTPOWER:String  	= NAME+"/actions/CURRENTPOWER";
+
+			
+			private var months:Array = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+			
+			protected function gauge_creationCompleteHandler(event:FlexEvent):void // fill the gauge with blank areas at the start
+			{
+				var fills:Array = new Array(0xFFFFFF,0xFFFFFF,0xFFFFFF,
+					0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,
+					0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,
+					0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF,0xFFFFFF);
+				
+				test.fills=fills;
+				actMinutos();       // refresh the date for the first time
+				test.fillColors();
+				test.consumo.text="20 W";
+				test.dia_mes.text = new Date().date+" de "+months[new Date().monthUTC] + " de " + new Date().fullYear;
+				setInterval(actMinutos,60000);  // set the interval for refreshing the date
+				setInterval(actCurrentPower,5000);
+				setInterval(actGraph,  300000);	// set the interval for refreshing the gauge
+			}
+			
+			protected function actMinutos():void{
+				
+				var data:Date      = new Date(); 
+				var minutos:String = data.minutes>=10?data.minutes.toString():"0"+data.minutes;
+				var hora:String	   = data.hours>=10?data.hours.toString():"0"+data.hours;
+				test.hora.text = hora + ":" +minutos;
+			
+			}
+			
+			protected function actGraph():void{
+				sendEvent(DAYCONSUMP);
+			}
+			
+			protected function actCurrentPower():void{
+				sendEvent(CURRENTPOWER)
+			}
+			
+			
+
+			// Send events
+			private function sendEvent( eventName:String ):void
+			{
+				this.dispatchEvent( new Event( eventName ) );
+			}
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				sendEvent(DAYCONSUMP);
+			}
+
+		]]>
+	</fx:Script>
+	<local:DayGauge id="test" hour="{testee}" month_day="22 de Outubro" currentCons="200W"  width="467.85" height="427.7" horizontalCenter="-80" verticalCenter="0">
+	</local:DayGauge>
+	<s:Button x="420" visible="false" y="429" label="TEST" click="button1_clickHandler(event)"/>
+</s:Group>

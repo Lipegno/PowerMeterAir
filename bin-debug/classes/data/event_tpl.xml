@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<event>
+    <source type="" user_id="" ipAddress="" sampleSize="" timestamp="" />
+    <priorPower>
+        <!--<powerSample pA="" qA="" pB="" qB="" angle="" timestamp="" />-->
+    </priorPower>
+    <eventPower>
+        <!--<powerSample pA="" qA="" pB="" qB="" angle="" timestamp="" />-->
+    </eventPower>
+</event>

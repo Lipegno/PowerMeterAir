@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="262" height="236" xmlns:ns="sinais.powermeter.view.components.ratting_components.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.charts.chartClasses.StackedSeries;
+			import mx.collections.ArrayCollection;
+			import mx.core.BitmapAsset;
+			import mx.events.FlexEvent;
+			
+			import sinais.powermeter.view.components.ratting_components.RawColoringList;
+			import sinais.powermeter.view.components.ratting_components.goalItemRenderer;
+			import sinais.powermeter.view.components.ratting_components.goalItemRendererBad;
+			import sinais.powermeter.view.components.ratting_components.goalItemRendererGood;
+			import sinais.powermeter.view.components.ratting_components.rateGoalsComponent;
+			
+			import spark.components.HGroup;
+			
+				
+			[Embed(source="../images/stepgreen_header.png")]
+			[Bindable]
+			public var logo:Class;
+			
+			[Bindable]
+			public var role:String ="";
+			public var _requestTime:Timer;
+			
+			public var tempIndex:int = 0;
+			
+			public var data:String = "";
+		
+			[Bindable]
+			public var goalsData:ArrayCollection = new ArrayCollection();
+			
+			public var plusVotes:int =0;
+			public var minusVotes:int =0;
+			
+			public function buildList():void{
+				
+				var temp:Array = new String(this.data).split("\n");
+				var data:ArrayCollection = new ArrayCollection();
+				var temp2:Array = new Array(temp.length);
+				for(var i:int=0;i<temp.length-1;i++){
+					if(checkRepetitions(temp2,temp[i])){
+					temp2[i]=temp[i];
+					var item:Object = new Object();
+					item.label = temp[i];
+					item.voting =0;
+					data.addItem(item);
+					}
+					}
+				goalsData = data;
+			}
+			
+			private function checkRepetitions(goals:Array, goal:String):Boolean{
+			
+				var result:Boolean = true;
+				for(var i:int=0;i<goals.length-1;i++){
+					if(goal==goals[i]){
+						result=false;
+						break;
+					}
+				}
+				return result;
+			}
+			
+			public function removingGoalbtn(evt:MouseEvent):void{
+//				var index:int  = (evt.target.id).split("closing")[1];
+//				tempIndex=index;
+				voting.visible=false;
+				confirmBox.visible=true;
+			}
+			
+			protected function removeGoalClickHandler():void{				
+			//	closing_list.removeElementAt(closing_list.numElements-1);
+				goalsData.removeItemAt(goal_list.selectedIndex);
+				(goal_list.dataProvider as ArrayCollection).refresh();
+			//	trace(tempIndex);
+				confirmBox.visible=false;
+			}
+						
+			public function buildRating():void{
+				var temp:Array = new String(this.data).split("\n");
+				var data:ArrayCollection = new ArrayCollection();
+				for(var i:int=0;i<temp.length-1;i++){
+					var item:rateGoalsComponent = new rateGoalsComponent();
+				//	trace(i);
+				}
+			}
+			
+
+			protected function goal_list_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if(goal_list.selectedIndex>=0){
+				if(goalsData.getItemAt(goal_list.selectedIndex).voting==0){ // only alows one vote
+					voting.visible=true;
+					voting.y = this.mouseY;
+				}
+				}
+
+			}
+
+
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				voting.visible = false;
+				var temp:int = goal_list.selectedIndex;
+				goalsData.getItemAt(goal_list.selectedIndex).voting = +1;
+				(goal_list.dataProvider as ArrayCollection).refresh();
+				this.dispatchEvent(new GoalEvent("plus",this.role+"/"+goalsData.getItemAt(temp).label,false,false));	
+				plusVotes++;
+				
+			}
+
+
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				voting.visible = false;
+				var temp:int = goal_list.selectedIndex;
+ 				goalsData.getItemAt(goal_list.selectedIndex).voting = -1;
+				(goal_list.dataProvider as ArrayCollection).refresh();
+				this.dispatchEvent(new GoalEvent("minus",this.role+"/"+goalsData.getItemAt(temp).label,false,false));	
+				minusVotes++;
+			}
+			
+			protected function close_btnHandler(event:MouseEvent):void{
+				voting.visible = false;
+			}
+			
+			private function list_itemRendererFunc(item:Object):ClassFactory {
+				var cla:Class = goalItemRenderer;
+				if(item.voting==-1)
+					 cla = goalItemRendererBad;
+				else if(item.voting==1)
+					 cla = goalItemRendererGood;
+
+				return new ClassFactory(cla);
+			}
+			
+
+		]]>
+	</fx:Script>
+	
+	<s:BorderContainer id="goalsCont" width="262" height="233" backgroundColor="#D9D9D9" cornerRadius="15" borderVisible="false" horizontalCenter="0" verticalCenter="0">
+		<s:List dataProvider="{goalsData}" itemRendererFunction="list_itemRendererFunc" click="goal_list_clickHandler(event)" y="44.5" width="244" height="179" labelField="label" borderVisible="false" borderAlpha="0.68" id="goal_list" left="8">
+		</s:List>
+		<s:Label text="{role}" x="10" y="10" fontSize="16"/>
+		<s:BorderContainer visible="false" id="confirmBox" x="24" y="59" width="186" height="94" borderWeight="2" dropShadowVisible="true">
+			<s:Label y="10" text="Tem a certeza que pertende remover a acção seleccionada " width="175" fontSize="12" left="5"/>
+			<s:Button x="22" y="55" label="Sim" click="removeGoalClickHandler()"/>
+			<s:Button x="95" y="55" label="Não" click="{confirmBox.visible=false}"/>
+		</s:BorderContainer>
+	</s:BorderContainer>
+	<s:BorderContainer id="voting" x="57" y="116" width="155" height="68" dropShadowVisible="true" visible="false" borderWeight="2">
+		<s:Button x="7" y="14" label="votar +" click="button1_clickHandler(event)"/>
+		<s:Button x="7" y="39" label="votar -" click="button2_clickHandler(event)"/>
+		<s:Button label="x" click="close_btnHandler(event)" width="28" chromeColor="#454545" color="#FFFFFF" x="133" y="-10.5"/>
+		<s:Button x="86" y="23" label="remover" width="63" height="24" fontSize="10" click="removingGoalbtn(event)" chromeColor="#B94747"/>
+	</s:BorderContainer>
+</s:Group>

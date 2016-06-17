@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Family id="10" name="Andrade">
+	<element role="dad" />
+	<element role="mother"/>
+	<element role="kid"/>
+</Family>
+<Family id="11" name="Andrade">
+	<element role="dad" />
+	<element role="mother"/>
+	<element role="kid"/>
+</Family>
+<Family id="12" name="Andrade">
+	<element role="dad" />
+	<element role="mother"/>
+	<element role="kid"/>
+</Family>
+<Family id="13" name="Andrade">
+	<element role="dad" />
+	<element role="mother"/>
+	<element role="kid"/>
+</Family>
+<Family id="14" name="Andrade">
+	<element role="dad" />
+	<element role="mother"/>
+	<element role="kid"/>
+</Family>
+<Family id="15"" name="Andrade">
+	<element role="dad" />
+	<element role="mother"/>
+	<element role="kid"/>
+</Family>
+<Family id="2" name="Sinais">
+	<element role="dad" />
+	<element role="mother"/>
+	<element role="kid"/>
+</Family>

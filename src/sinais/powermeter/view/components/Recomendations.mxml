@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="224" height="198"
+		 creationComplete="group1_creationCompleteHandler(event)" addedToStage="group1_addedToStageHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			public static const NAME:String		= "Recomendations";
+			public static const RECOM:String  	= NAME+"/actions/RECOM";
+
+			private function sendEvent( eventName:String ):void
+			{
+				this.dispatchEvent( new Event( eventName ) );
+			}
+			
+			private function start():void{
+			
+				sendEvent(RECOM);
+			}
+
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+					setInterval(start,200000);
+					
+			}
+	
+			protected function group1_addedToStageHandler(event:Event):void
+			{
+
+				sendEvent(RECOM);
+			}
+
+		]]>
+	</fx:Script>
+	<s:BorderContainer width="223" height="198" backgroundColor="#D9D9D9" borderStyle="solid" cornerRadius="15" borderColor="#FFFFFF" horizontalCenter="0" verticalCenter="0">
+		<s:BorderContainer width="100%" height="2" horizontalCenter="0" top="31" borderColor="#FFFFFF">
+		</s:BorderContainer>
+		<s:Label x="10" y="10" text="Sabia que:" fontSize="16"/>
+		<s:Button x="188" y="3" label="Button" click="sendEvent(RECOM)" visible="false" width="19"/>
+		<s:Label x="10" y="50" text="Label" width="200" height="134" fontSize="14" id="recomText"/>
+	</s:BorderContainer>
+</s:Group>

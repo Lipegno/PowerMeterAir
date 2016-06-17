@@ -1,0 +1,13 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+global{
+	font-family: "Myriad Regular";
+}
+@font-face
+{
+	font-family:"Myriad Regular";
+	src:url("../sinais/powermeter/view/fonts/MyriadPro-Regular.otf");
+	embedAsCFF: true;
+}

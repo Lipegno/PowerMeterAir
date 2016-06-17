@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="1000" height="94">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			public static const NAME:String  = "NavigationBar";
+			public static const DAY:String   = "day_view";
+			public static const HOUR:String  = "hour_view";
+			public static const WEEK:String  = "week_view";
+			public static const YEAR:String  = "year_view";
+			public static const MONTH:String = "month_view";
+			public static const GOALSVIEW:String = "goals_view";
+
+			
+			public function sendEvent( eventName:String ):void
+			{
+				switch(eventName){
+					
+					case "day_view":
+						hour_btn.selected  = false;
+						week_btn.selected  = false;
+						month_btn.selected = false;
+						year_btn.selected  = false;
+						goals_btn.selected = false;
+						break;
+					
+					case "hour_view":
+						day_btn.selected   = false;
+						week_btn.selected  = false;
+						month_btn.selected = false;
+						year_btn.selected  = false;
+						goals_btn.selected = false;
+						break;
+					
+					case "month_view":
+						hour_btn.selected  = false;
+						week_btn.selected  = false;
+						day_btn.selected   = false;
+						year_btn.selected  = false;
+						goals_btn.selected = false;
+						break;
+					
+					case "week_view":
+						day_btn.selected   = false;
+						hour_btn.selected  = false;
+						month_btn.selected = false;
+						year_btn.selected  = false;
+						goals_btn.selected = false;
+						break;
+					
+					case "year_view":
+						day_btn.selected   = false;
+						hour_btn.selected  = false;
+						month_btn.selected = false;
+						week_btn.selected  = false;
+						goals_btn.selected = false;
+						break;
+					
+					case "goals_view":
+						day_btn.selected   = false;
+						hour_btn.selected  = false;
+						month_btn.selected = false;
+						week_btn.selected  = false;
+						year_btn.selected  = false;
+						break;
+				}
+				
+				
+				this.dispatchEvent( new Event( eventName ) );
+			}
+
+		]]>
+	</fx:Script>
+	<s:ToggleButton label="dia" width="166" height="47" bottom="3" id="day_btn" click="sendEvent(DAY)" fontSize="16" left="166"/>
+	<s:ToggleButton label="hora / eventos" width="166" height="47" bottom="3" id="hour_btn" click="sendEvent(HOUR)" fontSize="16" left="0" fontWeight="normal" textDecoration="none" color="#2B2D41"/>
+	<s:ToggleButton label="semana" width="166" height="47" bottom="3" id="week_btn" click="sendEvent(WEEK)" fontSize="16" left="332"/>
+	<s:ToggleButton label="mês" width="166" height="47" bottom="3" id="month_btn" click="sendEvent(MONTH)" fontSize="16" left="498"/>
+	<s:ToggleButton label="ano" width="166" height="47" bottom="3" id="year_btn" click="sendEvent(YEAR)" fontSize="16" left="664"/>
+	<s:ToggleButton label="Objectivos" height="47" id="goals_btn" click="sendEvent(GOALSVIEW)" fontSize="16" right="2" width="166" bottom="3" chromeColor="#B3CA9E"/>
+	<s:Button label="Actividades" width="159" height="33" visible="false" horizontalCenter="-1" top="7" fontSize="16"/>
+</s:Group>

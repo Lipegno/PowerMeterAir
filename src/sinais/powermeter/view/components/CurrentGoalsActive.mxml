@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="282" height="342">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:BorderContainer x="0" y="0" width="280" height="342" backgroundColor="#D4D4D4" cornerRadius="15" borderVisible="false">
+		<s:Label x="10" y="10" text="Objectivos Actualmente Activos" fontSize="16"/>
+		<s:Label x="12" y="45.5" text="Diariamente" fontSize="14"/>
+		<s:Label x="10" y="141" text="Semanalmente" fontSize="14"/>
+		<s:Label x="11" y="236.5" text="Mensalmente" fontSize="14"/>
+		<s:Label x="19" y="64" text="Label" width="250" height="70" id="daygoalsText"/>
+		<s:Label x="20" y="165" text="Label" width="250" height="67" id="weekgoalsText"/>
+		<s:Label x="22" y="260" text="Label" width="250" height="72" id="monthgoalsText"/>
+	</s:BorderContainer>
+	<s:BorderContainer width="100%" height="2" horizontalCenter="0" top="31" borderColor="#FFFFFF">
+	</s:BorderContainer>
+</s:Group>
